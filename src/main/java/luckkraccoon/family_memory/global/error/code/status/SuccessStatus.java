@@ -15,6 +15,7 @@ public enum SuccessStatus implements BaseCode {
     USER_GET_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "회원정보 조회 성공"),
     USER_DELETE_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "회원 탈퇴가 완료되었습니다."),
     FAMILY_GROUP_CREATE_SUCCESS(org.springframework.http.HttpStatus.CREATED, "201", "가족 그룹이 생성되었습니다."),
+    FAMILY_GROUP_JOIN_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "가족 그룹에 참여했습니다."),
     ;
     private final HttpStatus httpStatus;
     private final String code;

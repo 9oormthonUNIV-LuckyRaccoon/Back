@@ -1,6 +1,8 @@
 package luckkraccoon.family_memory.domain.familyGroup.service;
 
 import lombok.RequiredArgsConstructor;
+import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupJoinRequest;
+import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupJoinResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,8 @@ import luckkraccoon.family_memory.domain.user.entity.User;
 import luckkraccoon.family_memory.domain.user.repository.UserRepository;
 import luckkraccoon.family_memory.domain.user.handler.UserHandler;
 import luckkraccoon.family_memory.global.error.code.status.ErrorStatus;
+
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -63,4 +67,53 @@ public class FamilyGroupServiceImpl implements FamilyGroupService {
         // 6) 응답
         return FamilyGroupConverter.toCreateResponse(saved, owner.getId());
     }
+
+    @Override
+    @Transactional
+    public FamilyGroupJoinResponse join(Long userId, FamilyGroupJoinRequest req) {
+        // 1) 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserHandler(ErrorStatus.NOT_FOUND)); // 404: 사용자 없음
+
+        // 단일 소속 정책: 이미 다른 그룹에 속해 있으면 403
+        if (user.getFamilyGroup() != null) {
+            // 같은 그룹이면 409 (이미 참여)
+            if (user.getFamilyGroup().getGroupJoinId().equals(req.getGroupJoinId())) {
+                throw new UserHandler(ErrorStatus.CONFLICT); // 409: 이미 해당 그룹에 참여되어 있습니다.
+            }
+            throw new UserHandler(ErrorStatus.FORBIDDEN); // 403: 이미 다른 그룹에 소속
+        }
+
+        // 2) 그룹 조회 (행 잠금으로 동시성 제어)
+        FamilyGroup group = familyGroupRepository.findForUpdateByGroupJoinId(req.getGroupJoinId())
+                .orElseThrow(() -> new UserHandler(ErrorStatus.NOT_FOUND)); // 404: 그룹 없음
+
+        // 3) 비밀번호 검증 (저장은 해시, 비교는 matches)
+        if (!passwordEncoder.matches(req.getGroupPassword(), group.getGroupPassword())) {
+            throw new UserHandler(ErrorStatus.CONFLICT); // 409: 비밀번호 불일치
+        }
+
+        // 4) 정원 체크 (currentCount < groupCount)
+        Integer max = group.getGroupCount();      // 엔티티가 groupCount 라고 가정
+        Integer curr = group.getCurrentCount() == null ? 0 : group.getCurrentCount();
+        if (max != null && curr >= max) {
+            throw new UserHandler(ErrorStatus.CONFLICT); // 409: 정원 초과
+        }
+
+        // 5) 참여 처리
+        group.setCurrentCount(curr + 1);
+        user.setFamilyGroup(group); // users.group_id 업데이트
+
+        // 6) 응답
+        return FamilyGroupJoinResponse.builder()
+                .userId(user.getId())
+                .groupId(group.getId())
+                .groupJoinId(group.getGroupJoinId())
+                .groupName(group.getGroupName())
+                .currentCount(group.getCurrentCount())
+                .groupMaxCount(group.getGroupCount())
+                .joinedAt(Instant.now().toString()) // ISO-8601 with 'Z'
+                .build();
+    }
+
 }

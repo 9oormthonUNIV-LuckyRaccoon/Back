@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupJoinRequest;
+import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupJoinResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,5 +32,18 @@ public class FamilyGroupController {
         FamilyGroupCreateResponse result = familyGroupService.create(ownerUserId, request);
         return ResponseEntity.status(201)
                 .body(ApiResponse.onSuccess(SuccessStatus.FAMILY_GROUP_CREATE_SUCCESS, result));
+    }
+
+
+    @Operation(summary = "가족 그룹 참여", description = "초대 ID/비밀번호로 그룹에 참여합니다. (무인증)")
+    @PostMapping(value = "/family-group/join", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<ApiResponse<FamilyGroupJoinResponse>> joinFamilyGroup(
+            @RequestParam("userId") Long userId,            // 무인증 환경에서 참가자 식별
+            @Valid @RequestBody FamilyGroupJoinRequest request
+    ) {
+        FamilyGroupJoinResponse result = familyGroupService.join(userId, request);
+        return ResponseEntity.ok(
+                ApiResponse.onSuccess(SuccessStatus.FAMILY_GROUP_JOIN_SUCCESS, result)
+        );
     }
 }
