@@ -3,16 +3,13 @@ package luckkraccoon.family_memory.domain.user.service;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.user.dto.request.LoginRequest;
 import luckkraccoon.family_memory.domain.user.dto.request.UserUpdateRequest;
-import luckkraccoon.family_memory.domain.user.dto.response.LoginResponse;
-import luckkraccoon.family_memory.domain.user.dto.response.UserGetResponse;
-import luckkraccoon.family_memory.domain.user.dto.response.UserUpdateResponse;
+import luckkraccoon.family_memory.domain.user.dto.response.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import luckkraccoon.family_memory.domain.user.dto.request.SignupRequest;
-import luckkraccoon.family_memory.domain.user.dto.response.SignupResponse;
 import luckkraccoon.family_memory.domain.user.entity.User;
 import luckkraccoon.family_memory.domain.user.repository.UserRepository;
 import luckkraccoon.family_memory.domain.user.converter.UserConverter;
@@ -117,6 +114,25 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.NOT_FOUND)); // 404
         return UserConverter.toGetResponse(user);
+    }
+
+    @Override
+    @Transactional
+    public UserDeleteResponse deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserHandler(ErrorStatus.NOT_FOUND)); // 404
+
+        Long userPk = user.getId();
+        String loginId = user.getUserId();
+
+        // 하드 삭제 (연관 엔티티는 DB FK CASCADE 또는 JPA cascade REMOVE로 함께 제거)
+        userRepository.delete(user);
+
+        return UserDeleteResponse.builder()
+                .id(userPk)
+                .userId(loginId)
+                .deleted(true)
+                .build();
     }
 
 }

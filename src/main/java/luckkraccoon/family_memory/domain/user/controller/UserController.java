@@ -6,16 +6,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.user.dto.request.LoginRequest;
 import luckkraccoon.family_memory.domain.user.dto.request.UserUpdateRequest;
-import luckkraccoon.family_memory.domain.user.dto.response.LoginResponse;
-import luckkraccoon.family_memory.domain.user.dto.response.UserGetResponse;
-import luckkraccoon.family_memory.domain.user.dto.response.UserUpdateResponse;
+import luckkraccoon.family_memory.domain.user.dto.response.*;
 import luckkraccoon.family_memory.domain.user.handler.UserHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import luckkraccoon.family_memory.domain.user.dto.request.SignupRequest;
-import luckkraccoon.family_memory.domain.user.dto.response.SignupResponse;
 import luckkraccoon.family_memory.domain.user.service.UserService;
 import luckkraccoon.family_memory.global.common.response.ApiResponse;
 import luckkraccoon.family_memory.global.error.code.status.SuccessStatus;
@@ -69,6 +66,15 @@ public class UserController {
         UserGetResponse result = userService.getUser(id);
         return ResponseEntity.ok(
                 ApiResponse.onSuccess(SuccessStatus.USER_GET_SUCCESS, result)
+        );
+    }
+
+    @Operation(summary = "회원 탈퇴", description = "사용자를 하드 삭제합니다. (무인증)")
+    @DeleteMapping(value = "/users/{id}", produces = "application/json")
+    public ResponseEntity<ApiResponse<UserDeleteResponse>> deleteUser(@PathVariable("id") Long id) {
+        UserDeleteResponse result = userService.deleteUser(id);
+        return ResponseEntity.ok(
+                ApiResponse.onSuccess(SuccessStatus.USER_DELETE_SUCCESS, result)
         );
     }
 

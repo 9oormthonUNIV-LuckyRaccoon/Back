@@ -2,11 +2,15 @@ package luckkraccoon.family_memory.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import luckkraccoon.family_memory.domain.chapter.entity.UserChapter;
 import luckkraccoon.family_memory.domain.familyGroup.entity.FamilyGroup;
 import luckkraccoon.family_memory.domain.model.entity.BaseEntity;
 import luckkraccoon.family_memory.domain.model.enums.Gender;
+import luckkraccoon.family_memory.domain.question.entity.UserQuestion;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -62,4 +66,10 @@ public class User extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)   // ✅ true
     @JoinColumn(name = "group_id", nullable = true)       // ✅ true
     private FamilyGroup familyGroup;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<UserChapter> userChapters = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<UserQuestion> userQuestions = new ArrayList<>();
 }
