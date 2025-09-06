@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupJoinRequest;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupLeaveRequest;
+import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupUpdateRequest;
 import luckkraccoon.family_memory.domain.familyGroup.dto.response.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -80,4 +81,17 @@ public class FamilyGroupController {
                 ApiResponse.onSuccess(SuccessStatus.FAMILY_GROUP_MEMBERS_GET_SUCCESS, result)
         );
     }
+
+    @Operation(summary = "가족 그룹 정보 수정", description = "전달된 필드만 부분 업데이트합니다. (무인증)")
+    @PatchMapping(value = "/family-group/{id}", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<ApiResponse<FamilyGroupUpdateResponse>> updateGroup(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody FamilyGroupUpdateRequest request
+    ) {
+        FamilyGroupUpdateResponse result = familyGroupService.updateGroup(id, request);
+        return ResponseEntity.ok(
+                ApiResponse.onSuccess(SuccessStatus.FAMILY_GROUP_UPDATE_SUCCESS, result)
+        );
+    }
+
 }

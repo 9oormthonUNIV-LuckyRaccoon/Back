@@ -3,6 +3,7 @@ package luckkraccoon.family_memory.domain.familyGroup.service;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupJoinRequest;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupLeaveRequest;
+import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupUpdateRequest;
 import luckkraccoon.family_memory.domain.familyGroup.dto.response.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -173,4 +174,31 @@ public class FamilyGroupServiceImpl implements FamilyGroupService {
         // 4) Converter로 응답 변환
         return FamilyGroupConverter.toMembersResponse(group, users, currentCount);
     }
+
+    @Override
+    @Transactional
+    public FamilyGroupUpdateResponse updateGroup(Long groupId, FamilyGroupUpdateRequest req) {
+        FamilyGroup group = familyGroupRepository.findById(groupId)
+                .orElseThrow(() -> new UserHandler(ErrorStatus.NOT_FOUND)); // "그룹을 찾을 수 없습니다."
+
+        // 현재 인원은 서버 기준(실시간)으로 계산
+        int currentCount = (int) userRepository.countByFamilyGroup_Id(groupId);
+
+        // 부분 업데이트
+        if (req.getGroupName() != null)    group.setGroupName(req.getGroupName());
+        if (req.getGroupComment() != null) group.setGroupComment(req.getGroupComment());
+        if (req.getGroupImage() != null)   group.setGroupImage(req.getGroupImage()); // "" 허용
+
+        if (req.getGroupMaxCount() != null) {
+            int newMax = req.getGroupMaxCount();
+            if (newMax < currentCount) {
+                throw new UserHandler(ErrorStatus.FAMILY_GROUP_MAXCOUNT_TOO_SMALL); // 409
+            }
+            group.setGroupCount(newMax);
+        }
+
+        // JPA flush는 트랜잭션 종료 시
+        return FamilyGroupConverter.toUpdateResponse(group, currentCount);
+    }
+
 }

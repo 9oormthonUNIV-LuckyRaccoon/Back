@@ -3,6 +3,7 @@ package luckkraccoon.family_memory.domain.familyGroup.converter;
 import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupCreateResponse;
 import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupGetResponse;
 import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupMembersResponse;
+import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupUpdateResponse;
 import luckkraccoon.family_memory.domain.familyGroup.entity.FamilyGroup;
 import luckkraccoon.family_memory.domain.user.entity.User;
 
@@ -62,6 +63,19 @@ public class FamilyGroupConverter {
                 .groupName(group.getGroupName())
                 .currentCount(currentCount)
                 .members(members)
+                .build();
+    }
+
+    public static FamilyGroupUpdateResponse toUpdateResponse(FamilyGroup g, int currentCount) {
+        return FamilyGroupUpdateResponse.builder()
+                .id(g.getId())
+                .groupJoinId(g.getGroupJoinId())
+                .groupName(g.getGroupName())
+                .groupComment(g.getGroupComment())
+                .groupImage(g.getGroupImage())
+                .groupMaxCount(g.getGroupCount())   // 엔티티의 필드명이 groupCount
+                .currentCount(currentCount)
+                .updatedAt(g.getUpdatedAt() == null ? null : g.getUpdatedAt().toString())
                 .build();
     }
 
