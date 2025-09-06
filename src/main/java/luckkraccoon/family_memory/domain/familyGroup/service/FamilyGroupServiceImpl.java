@@ -3,16 +3,13 @@ package luckkraccoon.family_memory.domain.familyGroup.service;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupJoinRequest;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupLeaveRequest;
-import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupGetResponse;
-import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupJoinResponse;
-import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupLeaveResponse;
+import luckkraccoon.family_memory.domain.familyGroup.dto.response.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import luckkraccoon.family_memory.domain.familyGroup.converter.FamilyGroupConverter;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupCreateRequest;
-import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupCreateResponse;
 import luckkraccoon.family_memory.domain.familyGroup.entity.FamilyGroup;
 import luckkraccoon.family_memory.domain.familyGroup.repository.FamilyGroupRepository;
 import luckkraccoon.family_memory.domain.user.entity.User;
@@ -21,6 +18,7 @@ import luckkraccoon.family_memory.domain.user.handler.UserHandler;
 import luckkraccoon.family_memory.global.error.code.status.ErrorStatus;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -158,5 +156,21 @@ public class FamilyGroupServiceImpl implements FamilyGroupService {
         return FamilyGroupConverter.toGetResponse(group);
     }
 
+    @Override
+    public FamilyGroupMembersResponse getMembers(Long groupId, String q) {
+        // 1) 그룹 존재 확인
+        FamilyGroup group = familyGroupRepository.findById(groupId)
+                .orElseThrow(() -> new UserHandler(ErrorStatus.NOT_FOUND)); // "그룹을 찾을 수 없습니다."
 
+        // 2) 구성원 조회 (q 없으면 전체, 있으면 LIKE 검색)
+        final List<User> users = (q == null || q.isBlank())
+                ? userRepository.findByFamilyGroup_Id(groupId)
+                : userRepository.searchMembersList(groupId, q.trim());
+
+        // 3) 서버 기준 현재 인원 수
+        int currentCount = (int) userRepository.countByFamilyGroup_Id(groupId);
+
+        // 4) Converter로 응답 변환
+        return FamilyGroupConverter.toMembersResponse(group, users, currentCount);
+    }
 }

@@ -6,14 +6,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupJoinRequest;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupLeaveRequest;
-import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupGetResponse;
-import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupJoinResponse;
-import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupLeaveResponse;
+import luckkraccoon.family_memory.domain.familyGroup.dto.response.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupCreateRequest;
-import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupCreateResponse;
 import luckkraccoon.family_memory.domain.familyGroup.service.FamilyGroupService;
 import luckkraccoon.family_memory.global.common.response.ApiResponse;
 import luckkraccoon.family_memory.global.error.code.status.SuccessStatus;
@@ -68,6 +65,19 @@ public class FamilyGroupController {
         FamilyGroupGetResponse result = familyGroupService.getById(id);
         return ResponseEntity.ok(
                 ApiResponse.onSuccess(SuccessStatus.FAMILY_GROUP_GET_SUCCESS, result)
+        );
+    }
+
+
+    @Operation(summary = "가족 그룹 구성원 조회", description = "지정한 가족 그룹에 소속된 사용자 전체 목록을 조회합니다. (무인증)")
+    @GetMapping(value = "/family-group/{id}/members", produces = "application/json")
+    public ResponseEntity<ApiResponse<FamilyGroupMembersResponse>> getMembers(
+            @PathVariable("id") Long groupId,
+            @RequestParam(value = "q", required = false) String q
+    ) {
+        FamilyGroupMembersResponse result = familyGroupService.getMembers(groupId, q);
+        return ResponseEntity.ok(
+                ApiResponse.onSuccess(SuccessStatus.FAMILY_GROUP_MEMBERS_GET_SUCCESS, result)
         );
     }
 }

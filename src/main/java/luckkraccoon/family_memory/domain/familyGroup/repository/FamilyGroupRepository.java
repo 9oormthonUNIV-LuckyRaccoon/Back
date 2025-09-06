@@ -2,11 +2,13 @@ package luckkraccoon.family_memory.domain.familyGroup.repository;
 
 import jakarta.persistence.LockModeType;
 import luckkraccoon.family_memory.domain.familyGroup.entity.FamilyGroup;
+import luckkraccoon.family_memory.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface FamilyGroupRepository extends JpaRepository<FamilyGroup, Long> {
@@ -21,5 +23,6 @@ public interface FamilyGroupRepository extends JpaRepository<FamilyGroup, Long> 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select g from FamilyGroup g where g.id = :id")
     Optional<FamilyGroup> findForUpdateById(@Param("id") Long id);
+
 
 }
