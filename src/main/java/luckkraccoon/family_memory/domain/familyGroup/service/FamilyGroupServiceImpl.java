@@ -2,7 +2,9 @@ package luckkraccoon.family_memory.domain.familyGroup.service;
 
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupJoinRequest;
+import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupLeaveRequest;
 import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupJoinResponse;
+import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupLeaveResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,5 +117,38 @@ public class FamilyGroupServiceImpl implements FamilyGroupService {
                 .joinedAt(Instant.now().toString()) // ISO-8601 with 'Z'
                 .build();
     }
+
+    @Override
+    @Transactional
+    public FamilyGroupLeaveResponse leave(FamilyGroupLeaveRequest req) {
+        // 1) 사용자 확인
+        User user = userRepository.findById(req.getUserId())
+                .orElseThrow(() -> new UserHandler(ErrorStatus.NOT_FOUND)); // 404
+
+        // 2) 그룹 확인 + 행 잠금
+        FamilyGroup group = familyGroupRepository.findForUpdateById(req.getGroupId())
+                .orElseThrow(() -> new UserHandler(ErrorStatus.NOT_FOUND)); // 404
+
+        // 3) 소속 일치 검증
+        if (user.getFamilyGroup() == null || !user.getFamilyGroup().getId().equals(group.getId())) {
+            // 명세: 409 "해당 사용자는 이 그룹에 소속되어 있지 않습니다."
+            throw new UserHandler(ErrorStatus.CONFLICT);
+        }
+
+        // 4) 탈퇴 처리
+        Integer curr = group.getCurrentCount() == null ? 0 : group.getCurrentCount();
+        group.setCurrentCount(Math.max(0, curr - 1)); // 아래로 떨어지지 않게
+
+        user.setFamilyGroup(null); // users.group_id = NULL
+
+        // 5) 응답
+        return FamilyGroupLeaveResponse.builder()
+                .userId(user.getId())
+                .groupId(group.getId())
+                .currentCount(group.getCurrentCount())
+                .leftAt(Instant.now().toString()) // ISO-8601 with 'Z'
+                .build();
+    }
+
 
 }

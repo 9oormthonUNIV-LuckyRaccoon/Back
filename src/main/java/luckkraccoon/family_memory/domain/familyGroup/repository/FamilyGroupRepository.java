@@ -18,4 +18,8 @@ public interface FamilyGroupRepository extends JpaRepository<FamilyGroup, Long> 
     @Query("select g from FamilyGroup g where g.groupJoinId = :groupJoinId")
     Optional<FamilyGroup> findForUpdateByGroupJoinId(@Param("groupJoinId") String groupJoinId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select g from FamilyGroup g where g.id = :id")
+    Optional<FamilyGroup> findForUpdateById(@Param("id") Long id);
+
 }

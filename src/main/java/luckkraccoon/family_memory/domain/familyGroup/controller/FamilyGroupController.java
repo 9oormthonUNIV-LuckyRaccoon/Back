@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupJoinRequest;
+import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupLeaveRequest;
 import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupJoinResponse;
+import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupLeaveResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +46,17 @@ public class FamilyGroupController {
         FamilyGroupJoinResponse result = familyGroupService.join(userId, request);
         return ResponseEntity.ok(
                 ApiResponse.onSuccess(SuccessStatus.FAMILY_GROUP_JOIN_SUCCESS, result)
+        );
+    }
+
+    @Operation(summary = "가족 그룹 탈퇴", description = "사용자를 해당 가족 그룹에서 탈퇴시킵니다. (무인증)")
+    @PostMapping(value = "/family-group/leave", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<ApiResponse<FamilyGroupLeaveResponse>> leaveFamilyGroup(
+            @Valid @RequestBody FamilyGroupLeaveRequest request
+    ) {
+        FamilyGroupLeaveResponse result = familyGroupService.leave(request);
+        return ResponseEntity.ok(
+                ApiResponse.onSuccess(SuccessStatus.FAMILY_GROUP_LEAVE_SUCCESS, result)
         );
     }
 }
