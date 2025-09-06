@@ -37,4 +37,6 @@ public interface UserChapterRepository extends JpaRepository<UserChapter, Long> 
     boolean existsById(Long id); // (선택)
     Optional<UserChapter> findByUser_IdAndChapter_Id(Long userId, Long chapterId);
 
+    UserChapter save(UserChapter entity);
+
 }

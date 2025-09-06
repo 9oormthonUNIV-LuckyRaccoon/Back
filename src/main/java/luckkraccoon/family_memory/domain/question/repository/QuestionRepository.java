@@ -1,6 +1,8 @@
 package luckkraccoon.family_memory.domain.question.repository;
 
 import luckkraccoon.family_memory.domain.question.entity.Question;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -43,4 +45,19 @@ public interface QuestionRepository extends Repository<Question, Long> {
     Optional<Question> findDetailById(@Param("id") Long id);
 
     long countByIndex_Chapter_Id(Long chapterId);
+
+    // ====== 추가: 첫/이전/다음 (chapter 범위) ======
+    Optional<Question> findFirstByIndex_Chapter_IdOrderByIdAsc(Long chapterId);
+    Optional<Question> findFirstByIndex_Chapter_IdAndIdGreaterThanOrderByIdAsc(Long chapterId, Long id);
+    Optional<Question> findFirstByIndex_Chapter_IdAndIdLessThanOrderByIdDesc(Long chapterId, Long id);
+
+    // ====== 추가: 첫/이전/다음 (index 범위) ======
+    Optional<Question> findFirstByIndex_IdOrderByIdAsc(Long indexId);
+    Optional<Question> findFirstByIndex_IdAndIdGreaterThanOrderByIdAsc(Long indexId, Long id);
+    Optional<Question> findFirstByIndex_IdAndIdLessThanOrderByIdDesc(Long indexId, Long id);
+
+
+    Page<Question> findByIndex_Chapter_IdAndIdGreaterThanEqual(Long chapterId, Long id, Pageable pageable);
+    Page<Question> findByIndex_IdAndIdGreaterThanEqual(Long indexId, Long id, Pageable pageable);
+
 }
