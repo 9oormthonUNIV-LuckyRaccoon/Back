@@ -8,5 +8,6 @@ public interface QuestionQueryService {
     QuestionListResponse getQuestions(Long chapterId, Long indexId, String q, String sort);
     QuestionDetailResponse getQuestion(Long id);
     QuestionCurrentResponse getCurrentPosition(Long userId, Long chapterId, Long indexId);
+    QuestionCurrentResponse getUserQuestionDetail(Long userId, Long chapterId, Long questionId, Long indexId);
 
 }

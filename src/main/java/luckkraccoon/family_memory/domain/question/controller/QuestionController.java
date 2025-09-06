@@ -73,4 +73,20 @@ public class QuestionController {
         return ApiResponse.onSuccess(SuccessStatus.QUESTION_GET_SUCCESS, result);
     }
 
+    @Operation(
+            summary = "사용자 자서전 단건(질문 기준) 조회",
+            description = "지정한 questionId에 대해 질문 + 사용자의 답변 1건 + 이전/다음 질문 id를 반환합니다. " +
+                    "indexId로 범위를 제한할 수 있습니다."
+    )
+    @GetMapping("/users/{userId}/chapters/{chapterId}/questions/{questionId}")
+    public ApiResponse<QuestionCurrentResponse> getUserQuestionDetail(
+            @PathVariable Long userId,
+            @PathVariable Long chapterId,
+            @PathVariable Long questionId,
+            @RequestParam(name = "indexId", required = false) Long indexId
+    ) {
+        var result = questionQueryService.getUserQuestionDetail(userId, chapterId, questionId, indexId);
+        return ApiResponse.onSuccess(SuccessStatus.QUESTION_GET_SUCCESS, result);
+    }
+
 }

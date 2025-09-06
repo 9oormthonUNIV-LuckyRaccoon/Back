@@ -182,4 +182,60 @@ public class QuestionQueryServiceImpl implements QuestionQueryService {
                 : questionRepository.findFirstByIndex_Chapter_IdAndIdGreaterThanOrderByIdAsc(chapterId, currentId)
                 .map(Question::getId).orElse(null);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public QuestionCurrentResponse getUserQuestionDetail(Long userId, Long chapterId, Long questionId, Long indexId) {
+        // 1) 유저/챕터 존재 확인
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new QuestionHandler(ErrorStatus.NOT_FOUND));
+        var chapter = chapterRepository.findById(chapterId)
+                .orElseThrow(() -> new QuestionHandler(ErrorStatus.NOT_FOUND));
+
+        // 2) 질문 로드 + 범위 일치 검증 (chapterId & optional indexId)
+        var question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionHandler(ErrorStatus.NOT_FOUND));
+
+        // 질문은 항상 어떤 index(=chapterIndex)에 속한다.
+        var qIndex = question.getIndex();
+        var qChapterId = qIndex.getChapter().getId();
+
+        boolean inScope = qChapterId.equals(chapter.getId())
+                && (indexId == null || qIndex.getId().equals(indexId));
+
+        if (!inScope) {
+            // “요청한 질문을 찾을 수 없거나 챕터/목차와 일치하지 않습니다.”
+            throw new QuestionHandler(ErrorStatus.NOT_FOUND);
+        }
+
+        // 3) 사용자의 해당 질문 답변 (없으면 null 허용)
+        var userAnswer = userQuestionRepository
+                .findByUser_IdAndQuestion_Id(user.getId(), question.getId())
+                .orElse(null);
+
+        // 4) prev / next (동일 범위)
+        Long prevId;
+        Long nextId;
+        if (indexId != null) {
+            prevId = questionRepository
+                    .findFirstByIndex_IdAndIdLessThanOrderByIdDesc(indexId, question.getId())
+                    .map(l -> l.getId()).orElse(null);
+            nextId = questionRepository
+                    .findFirstByIndex_IdAndIdGreaterThanOrderByIdAsc(indexId, question.getId())
+                    .map(l -> l.getId()).orElse(null);
+        } else {
+            prevId = questionRepository
+                    .findFirstByIndex_Chapter_IdAndIdLessThanOrderByIdDesc(chapterId, question.getId())
+                    .map(l -> l.getId()).orElse(null);
+            nextId = questionRepository
+                    .findFirstByIndex_Chapter_IdAndIdGreaterThanOrderByIdAsc(chapterId, question.getId())
+                    .map(l -> l.getId()).orElse(null);
+        }
+
+        // 5) DTO 변환
+        return QuestionConverter.toCurrentResponse(
+                user.getId(), chapter.getId(), indexId,
+                question, userAnswer, prevId, nextId
+        );
+    }
 }
