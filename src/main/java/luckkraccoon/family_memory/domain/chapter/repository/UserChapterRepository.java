@@ -35,5 +35,6 @@ public interface UserChapterRepository extends JpaRepository<UserChapter, Long> 
 
     // 존재 확인용
     boolean existsById(Long id); // (선택)
+    Optional<UserChapter> findByUser_IdAndChapter_Id(Long userId, Long chapterId);
 
 }

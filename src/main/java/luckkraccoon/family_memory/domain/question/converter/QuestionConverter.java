@@ -1,8 +1,11 @@
 package luckkraccoon.family_memory.domain.question.converter;
 
+import luckkraccoon.family_memory.domain.chapter.entity.UserChapter;
+import luckkraccoon.family_memory.domain.question.dto.response.AnswerCreateResponse;
 import luckkraccoon.family_memory.domain.question.dto.response.QuestionDetailResponse;
 import luckkraccoon.family_memory.domain.question.dto.response.QuestionListResponse;
 import luckkraccoon.family_memory.domain.question.entity.Question;
+import luckkraccoon.family_memory.domain.question.entity.UserQuestion;
 
 import java.util.List;
 
@@ -45,5 +48,25 @@ public class QuestionConverter {
                 .updatedAt(q.getUpdatedAt())
                 .build();
     }
+
+    public static AnswerCreateResponse toAnswerCreateResponse(UserQuestion saved, UserChapter uc) {
+        return AnswerCreateResponse.builder()
+                .answerId(saved.getId())
+                .questionId(saved.getQuestion().getId())
+                .userId(saved.getUser().getId())
+                .content(saved.getAnswer())             // <-- answer 사용
+                .createdAt(saved.getCreatedAt())
+                .userChapter(
+                        AnswerCreateResponse.UserChapterSummary.builder()
+                                .userChapterId(uc.getId())
+                                .state(uc.getState() != null ? uc.getState().name() : null)
+                                .progressPercent(uc.getProgressPercent())
+                                .lastQuestionId(uc.getLastQuestion() != null ? uc.getLastQuestion().getId() : null)
+                                .finishedAt(uc.getFinishedAt())
+                                .build()
+                )
+                .build();
+    }
+
 
 }

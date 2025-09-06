@@ -26,6 +26,7 @@ public enum SuccessStatus implements BaseCode {
     CHAPTER_INDEX_LIST_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "목차 조회 성공"),
     QUESTION_LIST_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "질문 목록 조회 성공"),
     QUESTION_GET_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "단건 질문 조회 성공"),
+    ANSWER_CREATE_SUCCESS(HttpStatus.CREATED, "201", "답변이 등록되었습니다."),
     ;
     private final HttpStatus httpStatus;
     private final String code;

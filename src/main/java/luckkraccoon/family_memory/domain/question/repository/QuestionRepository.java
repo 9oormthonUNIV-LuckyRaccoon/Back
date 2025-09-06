@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface QuestionRepository extends Repository<Question, Long> {
+    Optional<Question> findById(Long id);
     List<Question> findByIndexId(Long indexId);
     /** 챕터 전체(정렬 지원) */
     List<Question> findByIndex_Chapter_Id(Long chapterId, Sort sort);
@@ -41,4 +42,5 @@ public interface QuestionRepository extends Repository<Question, Long> {
            """)
     Optional<Question> findDetailById(@Param("id") Long id);
 
+    long countByIndex_Chapter_Id(Long chapterId);
 }
