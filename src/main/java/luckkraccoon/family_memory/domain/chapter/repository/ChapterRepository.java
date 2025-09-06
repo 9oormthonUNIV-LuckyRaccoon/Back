@@ -1,4 +1,7 @@
 package luckkraccoon.family_memory.domain.chapter.repository;
 
-public class ChapterRepository {
+import luckkraccoon.family_memory.domain.chapter.entity.Chapter;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ChapterRepository extends JpaRepository<Chapter, Long> {
 }
