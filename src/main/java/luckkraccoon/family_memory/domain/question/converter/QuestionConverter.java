@@ -1,14 +1,13 @@
 package luckkraccoon.family_memory.domain.question.converter;
 
 import luckkraccoon.family_memory.domain.chapter.entity.UserChapter;
-import luckkraccoon.family_memory.domain.question.dto.response.AnswerCreateResponse;
-import luckkraccoon.family_memory.domain.question.dto.response.QuestionCurrentResponse;
-import luckkraccoon.family_memory.domain.question.dto.response.QuestionDetailResponse;
-import luckkraccoon.family_memory.domain.question.dto.response.QuestionListResponse;
+import luckkraccoon.family_memory.domain.question.dto.response.*;
 import luckkraccoon.family_memory.domain.question.entity.Question;
 import luckkraccoon.family_memory.domain.question.entity.UserQuestion;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class QuestionConverter {
 
@@ -102,5 +101,41 @@ public class QuestionConverter {
                 .build();
     }
 
+    public static QuestionPagesResponse toPagesResponse(
+            Long userId, Long chapterId, Long indexId, int size,
+            List<Question> questions, Map<Long, UserQuestion> answerMap,
+            Long prevAnchorId, Long nextAnchorId
+    ) {
+        List<QuestionPagesResponse.PageItem> items = questions.stream()
+                .map(q -> QuestionPagesResponse.PageItem.builder()
+                        .question(QuestionPagesResponse.QuestionDto.builder()
+                                .id(q.getId())
+                                .questionName(q.getQuestionName())
+                                .questionComment(q.getQuestionComment())
+                                .build())
+                        .answer(Optional.ofNullable(answerMap.get(q.getId()))
+                                .map(a -> QuestionPagesResponse.AnswerDto.builder()
+                                        .answerId(a.getId())
+                                        .userId(a.getUser().getId())
+                                        .questionId(a.getQuestion().getId())
+                                        .content(a.getAnswer())
+                                        .createdAt(a.getCreatedAt())
+                                        .build())
+                                .orElse(null))
+                        .build())
+                .toList();
+
+        return QuestionPagesResponse.builder()
+                .userId(userId)
+                .chapterId(chapterId)
+                .indexId(indexId)
+                .size(items.size())
+                .items(items)
+                .pageNav(QuestionPagesResponse.PageNav.builder()
+                        .prevAnchorQuestionId(prevAnchorId)
+                        .nextAnchorQuestionId(nextAnchorId)
+                        .build())
+                .build();
+    }
 
 }

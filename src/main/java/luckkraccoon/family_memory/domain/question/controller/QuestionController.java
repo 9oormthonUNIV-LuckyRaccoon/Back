@@ -5,14 +5,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.question.dto.request.AnswerCreateRequest;
-import luckkraccoon.family_memory.domain.question.dto.response.AnswerCreateResponse;
-import luckkraccoon.family_memory.domain.question.dto.response.QuestionCurrentResponse;
-import luckkraccoon.family_memory.domain.question.dto.response.QuestionDetailResponse;
+import luckkraccoon.family_memory.domain.question.dto.response.*;
 import luckkraccoon.family_memory.domain.question.service.QuestionCommandService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import luckkraccoon.family_memory.domain.question.dto.response.QuestionListResponse;
 import luckkraccoon.family_memory.domain.question.service.QuestionQueryService;
 import luckkraccoon.family_memory.global.common.response.ApiResponse;
 import luckkraccoon.family_memory.global.error.code.status.SuccessStatus;
@@ -89,4 +86,19 @@ public class QuestionController {
         return ApiResponse.onSuccess(SuccessStatus.QUESTION_GET_SUCCESS, result);
     }
 
+    @Operation(
+            summary = "사용자 자서전 양페이지(연속 n개) 조회",
+            description = "앵커 질문부터 연속 size개(기본 2)를 질문+답변으로 반환하고, 이전/다음 앵커 id를 함께 제공합니다."
+    )
+    @GetMapping("/users/{userId}/chapters/{chapterId}/pages")
+    public ApiResponse<QuestionPagesResponse> getPages(
+            @PathVariable Long userId,
+            @PathVariable Long chapterId,
+            @RequestParam(name = "indexId", required = false) Long indexId,
+            @RequestParam(name = "anchorQuestionId", required = false) Long anchorQuestionId,
+            @RequestParam(name = "size", required = false, defaultValue = "2") Integer size
+    ) {
+        var result = questionQueryService.getUserPages(userId, chapterId, indexId, anchorQuestionId, size);
+        return ApiResponse.onSuccess(SuccessStatus.QUESTION_LIST_SUCCESS, result);
+    }
 }

@@ -11,6 +11,7 @@ import luckkraccoon.family_memory.domain.question.converter.QuestionConverter;
 import luckkraccoon.family_memory.domain.question.dto.response.QuestionCurrentResponse;
 import luckkraccoon.family_memory.domain.question.dto.response.QuestionDetailResponse;
 import luckkraccoon.family_memory.domain.question.dto.response.QuestionListResponse;
+import luckkraccoon.family_memory.domain.question.dto.response.QuestionPagesResponse;
 import luckkraccoon.family_memory.domain.question.entity.Question;
 import luckkraccoon.family_memory.domain.question.entity.UserQuestion;
 import luckkraccoon.family_memory.domain.question.handler.QuestionHandler;
@@ -20,13 +21,18 @@ import luckkraccoon.family_memory.domain.question.repository.UserQuestionReposit
 import luckkraccoon.family_memory.domain.user.entity.User;
 import luckkraccoon.family_memory.domain.user.repository.UserRepository;
 import luckkraccoon.family_memory.global.error.code.status.ErrorStatus;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -236,6 +242,96 @@ public class QuestionQueryServiceImpl implements QuestionQueryService {
         return QuestionConverter.toCurrentResponse(
                 user.getId(), chapter.getId(), indexId,
                 question, userAnswer, prevId, nextId
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public QuestionPagesResponse getUserPages(Long userId, Long chapterId, Long indexId,
+                                              Long anchorQuestionId, Integer sizeParam) {
+
+        // 0) 파라미터 검증
+        int size = (sizeParam == null) ? 2 : sizeParam;
+        if (size < 1 || size > 10) throw new QuestionHandler(ErrorStatus.BAD_REQUEST);
+
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new QuestionHandler(ErrorStatus.NOT_FOUND));
+        var chapter = chapterRepository.findById(chapterId)
+                .orElseThrow(() -> new QuestionHandler(ErrorStatus.NOT_FOUND));
+
+        // 1) 앵커 결정
+        Long anchorId = null;
+
+        // 요청 앵커가 우선
+        if (anchorQuestionId != null) {
+            var anchorQ = questionRepository.findById(anchorQuestionId)
+                    .orElseThrow(() -> new QuestionHandler(ErrorStatus.NOT_FOUND));
+            boolean inScope = anchorQ.getIndex().getChapter().getId().equals(chapterId)
+                    && (indexId == null || anchorQ.getIndex().getId().equals(indexId));
+            if (inScope) anchorId = anchorQ.getId();
+        }
+
+        // 요청 앵커가 없거나 범위 밖이면, 사용자 현재 위치
+        if (anchorId == null) {
+            var uc = userChapterRepository.findByUser_IdAndChapter_Id(userId, chapterId).orElse(null);
+            if (uc != null && uc.getLastQuestion() != null) {
+                var last = uc.getLastQuestion();
+                boolean inScope = last.getIndex().getChapter().getId().equals(chapterId)
+                        && (indexId == null || last.getIndex().getId().equals(indexId));
+                if (inScope) anchorId = last.getId();
+            }
+        }
+
+        // 그래도 없으면 범위의 첫 질문
+        if (anchorId == null) {
+            anchorId = (indexId == null)
+                    ? questionRepository.findFirstByIndex_Chapter_IdOrderByIdAsc(chapterId)
+                    .map(Question::getId).orElse(null)
+                    : questionRepository.findFirstByIndex_IdOrderByIdAsc(indexId)
+                    .map(Question::getId).orElse(null);
+        }
+
+        if (anchorId == null) {
+            // 범위 내 질문 자체가 없음
+            throw new QuestionHandler(ErrorStatus.NOT_FOUND);
+        }
+
+        // 2) 앵커부터 연속 size개 로딩
+        Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.ASC, "id"));
+        List<Question> questions = (indexId == null)
+                ? questionRepository.findByIndex_Chapter_IdAndIdGreaterThanEqual(chapterId, anchorId, pageable).getContent()
+                : questionRepository.findByIndex_IdAndIdGreaterThanEqual(indexId, anchorId, pageable).getContent();
+
+        if (questions.isEmpty()) throw new QuestionHandler(ErrorStatus.NOT_FOUND);
+
+        // 3) 사용자 답변 맵
+        List<Long> qIds = questions.stream().map(Question::getId).toList();
+        Map<Long, UserQuestion> answerMap = userQuestionRepository
+                .findByUser_IdAndQuestion_IdIn(user.getId(), qIds)
+                .stream()
+                .collect(Collectors.toMap(uq -> uq.getQuestion().getId(), Function.identity()));
+
+        // 4) pageNav 계산
+        Long firstId = questions.get(0).getId();
+        Long lastId  = questions.get(questions.size() - 1).getId();
+
+        Long prevAnchor = (indexId == null)
+                ? questionRepository.findFirstByIndex_Chapter_IdAndIdLessThanOrderByIdDesc(chapterId, firstId)
+                .map(Question::getId).orElse(null)
+                : questionRepository.findFirstByIndex_IdAndIdLessThanOrderByIdDesc(indexId, firstId)
+                .map(Question::getId).orElse(null);
+
+        Long nextAnchor = (indexId == null)
+                ? questionRepository.findFirstByIndex_Chapter_IdAndIdGreaterThanOrderByIdAsc(chapterId, lastId)
+                .map(Question::getId).orElse(null)
+                : questionRepository.findFirstByIndex_IdAndIdGreaterThanOrderByIdAsc(indexId, lastId)
+                .map(Question::getId).orElse(null);
+
+        // 5) DTO 변환
+        return QuestionConverter.toPagesResponse(
+                userId, chapterId, indexId, size,
+                questions, answerMap,
+                prevAnchor, nextAnchor
         );
     }
 }

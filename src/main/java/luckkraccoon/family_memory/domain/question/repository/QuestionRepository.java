@@ -1,6 +1,8 @@
 package luckkraccoon.family_memory.domain.question.repository;
 
 import luckkraccoon.family_memory.domain.question.entity.Question;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -53,5 +55,9 @@ public interface QuestionRepository extends Repository<Question, Long> {
     Optional<Question> findFirstByIndex_IdOrderByIdAsc(Long indexId);
     Optional<Question> findFirstByIndex_IdAndIdGreaterThanOrderByIdAsc(Long indexId, Long id);
     Optional<Question> findFirstByIndex_IdAndIdLessThanOrderByIdDesc(Long indexId, Long id);
+
+
+    Page<Question> findByIndex_Chapter_IdAndIdGreaterThanEqual(Long chapterId, Long id, Pageable pageable);
+    Page<Question> findByIndex_IdAndIdGreaterThanEqual(Long indexId, Long id, Pageable pageable);
 
 }
