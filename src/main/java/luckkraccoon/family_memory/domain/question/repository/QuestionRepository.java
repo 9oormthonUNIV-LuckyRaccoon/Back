@@ -43,4 +43,15 @@ public interface QuestionRepository extends Repository<Question, Long> {
     Optional<Question> findDetailById(@Param("id") Long id);
 
     long countByIndex_Chapter_Id(Long chapterId);
+
+    // ====== 추가: 첫/이전/다음 (chapter 범위) ======
+    Optional<Question> findFirstByIndex_Chapter_IdOrderByIdAsc(Long chapterId);
+    Optional<Question> findFirstByIndex_Chapter_IdAndIdGreaterThanOrderByIdAsc(Long chapterId, Long id);
+    Optional<Question> findFirstByIndex_Chapter_IdAndIdLessThanOrderByIdDesc(Long chapterId, Long id);
+
+    // ====== 추가: 첫/이전/다음 (index 범위) ======
+    Optional<Question> findFirstByIndex_IdOrderByIdAsc(Long indexId);
+    Optional<Question> findFirstByIndex_IdAndIdGreaterThanOrderByIdAsc(Long indexId, Long id);
+    Optional<Question> findFirstByIndex_IdAndIdLessThanOrderByIdDesc(Long indexId, Long id);
+
 }

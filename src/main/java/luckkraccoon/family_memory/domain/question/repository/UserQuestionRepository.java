@@ -12,4 +12,5 @@ public interface UserQuestionRepository extends JpaRepository<UserQuestion, Long
     Optional<UserQuestion> findByUser_IdAndQuestion_Id(Long userId, Long questionId);
 
     long countDistinctByUser_IdAndQuestion_Index_Chapter_Id(Long userId, Long chapterId);
+
 }

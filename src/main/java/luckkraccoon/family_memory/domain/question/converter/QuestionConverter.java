@@ -2,6 +2,7 @@ package luckkraccoon.family_memory.domain.question.converter;
 
 import luckkraccoon.family_memory.domain.chapter.entity.UserChapter;
 import luckkraccoon.family_memory.domain.question.dto.response.AnswerCreateResponse;
+import luckkraccoon.family_memory.domain.question.dto.response.QuestionCurrentResponse;
 import luckkraccoon.family_memory.domain.question.dto.response.QuestionDetailResponse;
 import luckkraccoon.family_memory.domain.question.dto.response.QuestionListResponse;
 import luckkraccoon.family_memory.domain.question.entity.Question;
@@ -63,6 +64,39 @@ public class QuestionConverter {
                                 .progressPercent(uc.getProgressPercent())
                                 .lastQuestionId(uc.getLastQuestion() != null ? uc.getLastQuestion().getId() : null)
                                 .finishedAt(uc.getFinishedAt())
+                                .build()
+                )
+                .build();
+    }
+
+    public static QuestionCurrentResponse toCurrentResponse(
+            Long userId, Long chapterId, Long indexId,
+            Question question,
+            UserQuestion userQuestion,
+            Long prevId, Long nextId
+    ) {
+        return QuestionCurrentResponse.builder()
+                .userId(userId)
+                .chapterId(chapterId)
+                .indexId(indexId)
+                .question(
+                        QuestionCurrentResponse.QuestionSummary.builder()
+                                .id(question.getId())
+                                .questionName(question.getQuestionName())
+                                .questionComment(question.getQuestionComment())
+                                .build()
+                )
+                .answer(userQuestion == null ? null :
+                        QuestionCurrentResponse.AnswerSummary.builder()
+                                .answerId(userQuestion.getId())
+                                .content(userQuestion.getAnswer())
+                                .createdAt(userQuestion.getCreatedAt())
+                                .build()
+                )
+                .nav(
+                        QuestionCurrentResponse.NavSummary.builder()
+                                .prevQuestionId(prevId)
+                                .nextQuestionId(nextId)
                                 .build()
                 )
                 .build();

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.question.dto.request.AnswerCreateRequest;
 import luckkraccoon.family_memory.domain.question.dto.response.AnswerCreateResponse;
+import luckkraccoon.family_memory.domain.question.dto.response.QuestionCurrentResponse;
 import luckkraccoon.family_memory.domain.question.dto.response.QuestionDetailResponse;
 import luckkraccoon.family_memory.domain.question.service.QuestionCommandService;
 import org.springframework.http.HttpStatus;
@@ -58,4 +59,18 @@ public class QuestionController {
         // 프로젝트의 SuccessStatus에 맞춰 사용
         return ApiResponse.onSuccess(SuccessStatus.ANSWER_CREATE_SUCCESS, result);
     }
+
+    @Operation(summary = "사용자 자서전 현재 위치 조회",
+            description = "lastQuestionId가 있으면 그 질문을, 없으면 범위 내 첫 질문을 반환합니다. prev/next id 포함.")
+    @GetMapping("/users/{userId}/chapters/{chapterId}/current")
+    public ApiResponse<QuestionCurrentResponse> getCurrent(
+            @PathVariable Long userId,
+            @PathVariable Long chapterId,
+            @RequestParam(name = "indexId", required = false) Long indexId
+    ) {
+        var result = questionQueryService.getCurrentPosition(userId, chapterId, indexId);
+        // 프로젝트에 맞춰 SuccessStatus를 사용하세요. (공용 OK가 없다면 QUESTION_GET_SUCCESS 등 재사용)
+        return ApiResponse.onSuccess(SuccessStatus.QUESTION_GET_SUCCESS, result);
+    }
+
 }
