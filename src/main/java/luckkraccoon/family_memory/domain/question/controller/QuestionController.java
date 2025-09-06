@@ -1,4 +1,31 @@
 package luckkraccoon.family_memory.domain.question.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import luckkraccoon.family_memory.domain.question.dto.response.QuestionListResponse;
+import luckkraccoon.family_memory.domain.question.service.QuestionQueryService;
+import luckkraccoon.family_memory.global.common.response.ApiResponse;
+import luckkraccoon.family_memory.global.error.code.status.SuccessStatus;
+
+@RestController
+@RequestMapping("/api")
+@RequiredArgsConstructor
+@Tag(name = "Question", description = "질문 조회 API")
 public class QuestionController {
+
+    private final QuestionQueryService questionQueryService;
+
+    @Operation(summary = "질문 목록 조회",
+            description = "지정한 챕터의 질문 목록을 조회합니다. indexId, q(부분검색), sort(id|questionName,asc|desc) 지원")
+    @GetMapping("/chapter/{chapterId}/questions")
+    public ApiResponse<QuestionListResponse> getQuestions(@PathVariable Long chapterId,
+                                                          @RequestParam(required = false) Long indexId,
+                                                          @RequestParam(required = false) String q,
+                                                          @RequestParam(required = false, defaultValue = "id,asc") String sort) {
+        QuestionListResponse result = questionQueryService.getQuestions(chapterId, indexId, q, sort);
+        return ApiResponse.onSuccess(SuccessStatus.QUESTION_LIST_SUCCESS, result);
+    }
 }
