@@ -23,6 +23,7 @@ public enum SuccessStatus implements BaseCode {
     CHAPTER_LIST_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "챕터 목록 조회 성공"),
     CHAPTER_LIST_EMPTY(org.springframework.http.HttpStatus.NO_CONTENT, "204", "조회 가능한 챕터가 없습니다."),
     USERCHAPTER_GET_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "사용자챕터 조회 성공."),
+    CHAPTER_INDEX_LIST_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "목차 조회 성공"),
     ;
     private final HttpStatus httpStatus;
     private final String code;
