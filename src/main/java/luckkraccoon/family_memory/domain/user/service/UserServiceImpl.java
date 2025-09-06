@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.user.dto.request.LoginRequest;
 import luckkraccoon.family_memory.domain.user.dto.request.UserUpdateRequest;
 import luckkraccoon.family_memory.domain.user.dto.response.LoginResponse;
+import luckkraccoon.family_memory.domain.user.dto.response.UserGetResponse;
 import luckkraccoon.family_memory.domain.user.dto.response.UserUpdateResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -109,6 +110,13 @@ public class UserServiceImpl implements UserService {
         // flush는 트랜잭션 끝에서
 
         return UserConverter.toUpdateResponse(user);
+    }
+
+    @Override
+    public UserGetResponse getUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserHandler(ErrorStatus.NOT_FOUND)); // 404
+        return UserConverter.toGetResponse(user);
     }
 
 }

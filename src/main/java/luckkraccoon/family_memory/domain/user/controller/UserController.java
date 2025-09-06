@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.user.dto.request.LoginRequest;
 import luckkraccoon.family_memory.domain.user.dto.request.UserUpdateRequest;
 import luckkraccoon.family_memory.domain.user.dto.response.LoginResponse;
+import luckkraccoon.family_memory.domain.user.dto.response.UserGetResponse;
 import luckkraccoon.family_memory.domain.user.dto.response.UserUpdateResponse;
 import luckkraccoon.family_memory.domain.user.handler.UserHandler;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +60,15 @@ public class UserController {
         UserUpdateResponse result = userService.updateUser(id, request);
         return ResponseEntity.ok(
                 ApiResponse.onSuccess(SuccessStatus.USER_UPDATE_SUCCESS, result)
+        );
+    }
+
+    @Operation(summary = "회원정보 조회", description = "특정 사용자의 프로필/환경설정 반환 (무인증)")
+    @GetMapping(value = "/users/{id}", produces = "application/json")
+    public ResponseEntity<ApiResponse<UserGetResponse>> getUser(@PathVariable("id") Long id) {
+        UserGetResponse result = userService.getUser(id);
+        return ResponseEntity.ok(
+                ApiResponse.onSuccess(SuccessStatus.USER_GET_SUCCESS, result)
         );
     }
 
