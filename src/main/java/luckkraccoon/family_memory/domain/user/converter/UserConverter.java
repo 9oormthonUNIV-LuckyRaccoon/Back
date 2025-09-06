@@ -1,6 +1,7 @@
 package luckkraccoon.family_memory.domain.user.converter;
 
 import luckkraccoon.family_memory.domain.user.dto.request.SignupRequest;
+import luckkraccoon.family_memory.domain.user.dto.response.LoginResponse;
 import luckkraccoon.family_memory.domain.user.dto.response.SignupResponse;
 import luckkraccoon.family_memory.domain.user.entity.User;
 
@@ -29,5 +30,20 @@ public class UserConverter {
                 .fontSize(req.getFontSize())
                 .voiceSpeed(req.getVoiceSpeed())
                 .build(); // familyGroup은 가입 시 null 유지(이후 참여 API에서 세팅)
+    }
+
+    public static LoginResponse toLoginResponse(User u) {
+        return LoginResponse.builder()
+                .id(u.getId())
+                .userId(u.getUserId())
+                .nickName(u.getNickName())
+                .email(u.getEmail())
+                .gender(u.getGender() == null ? null : u.getGender().name())
+                .birth(u.getBirth() == null ? null : u.getBirth().toString())
+                .userImage(u.getUserImage())
+                .fontSize(u.getFontSize())
+                .voiceSpeed(u.getVoiceSpeed())
+                .groupId(u.getFamilyGroup() == null ? null : u.getFamilyGroup().getId())
+                .build();
     }
 }

@@ -1,6 +1,8 @@
 package luckkraccoon.family_memory.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
+import luckkraccoon.family_memory.domain.user.dto.request.LoginRequest;
+import luckkraccoon.family_memory.domain.user.dto.response.LoginResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,5 +59,20 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
         return UserConverter.toSignupResponse(user);
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest request) {
+        // 1) 아이디로 조회 (존재/비밀번호 오류는 동일 메시지)
+        User user = userRepository.findByUserId(request.getUserId())
+                .orElseThrow(() -> new UserHandler(ErrorStatus.INVALID_CREDENTIALS)); // 400
+
+        // 2) 비밀번호 검증
+        if (!passwordEncoder.matches(request.getUserPassword(), user.getUserPassword())) {
+            throw new UserHandler(ErrorStatus.INVALID_CREDENTIALS); // 400
+        }
+
+        // 3) 성공 → 사용자 정보만 반환 (토큰 없음)
+        return UserConverter.toLoginResponse(user);
     }
 }

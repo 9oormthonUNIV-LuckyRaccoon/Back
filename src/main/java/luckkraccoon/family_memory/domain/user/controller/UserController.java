@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import luckkraccoon.family_memory.domain.user.dto.request.LoginRequest;
+import luckkraccoon.family_memory.domain.user.dto.response.LoginResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,5 +36,13 @@ public class UserController {
         SignupResponse result = userService.signup(request, imageFile);
         return ResponseEntity.status(201)
                 .body(ApiResponse.onSuccess(SuccessStatus.SIGNUP_SUCCESS, result));
+    }
+
+
+    @Operation(summary = "로그인", description = "userId / userPassword로 로그인 (토큰 발급 없음)")
+    @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
+        LoginResponse result = userService.login(request);
+        return ResponseEntity.ok(ApiResponse.onSuccess(SuccessStatus.LOGIN_SUCCESS, result));
     }
 }
