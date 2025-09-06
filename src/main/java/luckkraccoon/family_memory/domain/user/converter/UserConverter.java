@@ -3,6 +3,7 @@ package luckkraccoon.family_memory.domain.user.converter;
 import luckkraccoon.family_memory.domain.user.dto.request.SignupRequest;
 import luckkraccoon.family_memory.domain.user.dto.response.LoginResponse;
 import luckkraccoon.family_memory.domain.user.dto.response.SignupResponse;
+import luckkraccoon.family_memory.domain.user.dto.response.UserUpdateResponse;
 import luckkraccoon.family_memory.domain.user.entity.User;
 
 public class UserConverter {
@@ -46,4 +47,21 @@ public class UserConverter {
                 .groupId(u.getFamilyGroup() == null ? null : u.getFamilyGroup().getId())
                 .build();
     }
+
+    public static UserUpdateResponse toUpdateResponse(User u) {
+        return UserUpdateResponse.builder()
+                .id(u.getId())
+                .userId(u.getUserId())
+                .userName(u.getUserName())
+                .nickName(u.getNickName())
+                .email(u.getEmail())
+                .gender(u.getGender() == null ? null : u.getGender().name())
+                .birth(u.getBirth() == null ? null : u.getBirth().toString())
+                .userImage(u.getUserImage())
+                .fontSize(u.getFontSize())
+                .voiceSpeed(u.getVoiceSpeed())
+                .updatedAt(u.getUpdatedAt() == null ? null : u.getUpdatedAt().toString())
+                .build();
+    }
+
 }

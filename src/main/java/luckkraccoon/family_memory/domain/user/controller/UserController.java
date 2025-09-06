@@ -5,7 +5,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.user.dto.request.LoginRequest;
+import luckkraccoon.family_memory.domain.user.dto.request.UserUpdateRequest;
 import luckkraccoon.family_memory.domain.user.dto.response.LoginResponse;
+import luckkraccoon.family_memory.domain.user.dto.response.UserUpdateResponse;
+import luckkraccoon.family_memory.domain.user.handler.UserHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,4 +48,18 @@ public class UserController {
         LoginResponse result = userService.login(request);
         return ResponseEntity.ok(ApiResponse.onSuccess(SuccessStatus.LOGIN_SUCCESS, result));
     }
+
+    @Operation(summary = "회원정보 부분수정", description = "전달된 필드만 갱신 (id,userId 불변)")
+    @PatchMapping(value = "/users/{id}", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<ApiResponse<UserUpdateResponse>> updateUser(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody UserUpdateRequest request
+    ) {
+
+        UserUpdateResponse result = userService.updateUser(id, request);
+        return ResponseEntity.ok(
+                ApiResponse.onSuccess(SuccessStatus.USER_UPDATE_SUCCESS, result)
+        );
+    }
+
 }

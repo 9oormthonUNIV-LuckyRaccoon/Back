@@ -2,7 +2,9 @@ package luckkraccoon.family_memory.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.user.dto.request.LoginRequest;
+import luckkraccoon.family_memory.domain.user.dto.request.UserUpdateRequest;
 import luckkraccoon.family_memory.domain.user.dto.response.LoginResponse;
+import luckkraccoon.family_memory.domain.user.dto.response.UserUpdateResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,4 +77,38 @@ public class UserServiceImpl implements UserService {
         // 3) 성공 → 사용자 정보만 반환 (토큰 없음)
         return UserConverter.toLoginResponse(user);
     }
+
+    @Override
+    @Transactional
+    public UserUpdateResponse updateUser(Long id, UserUpdateRequest req) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserHandler(ErrorStatus.NOT_FOUND)); // 404
+
+        // 이메일 변경 시 중복 검사 (자기 자신 제외)
+        if (req.getEmail() != null) {
+            String newEmail = req.getEmail();
+            String currEmail = user.getEmail();
+            boolean changed = (currEmail == null) || !currEmail.equalsIgnoreCase(newEmail);
+            if (changed && userRepository.existsByEmail(newEmail)) {
+                throw new UserHandler(ErrorStatus.CONFLICT); // 409
+            }
+        }
+
+        // 부분 업데이트 적용 (null은 미변경)
+        if (req.getUserName()  != null) user.setUserName(req.getUserName());
+        if (req.getNickName()  != null) user.setNickName(req.getNickName());
+        if (req.getEmail()     != null) user.setEmail(req.getEmail());
+        if (req.getGender()    != null) user.setGender(req.getGender());
+        if (req.getBirth()     != null) user.setBirth(req.getBirth());
+        if (req.getUserImage() != null) user.setUserImage(req.getUserImage());
+        if (req.getFontSize()  != null) user.setFontSize(req.getFontSize());
+        if (req.getVoiceSpeed()!= null) user.setVoiceSpeed(req.getVoiceSpeed());
+
+        // JPA Auditing 으로 updatedAt 자동 갱신
+        // flush는 트랜잭션 끝에서
+
+        return UserConverter.toUpdateResponse(user);
+    }
+
 }
