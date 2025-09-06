@@ -20,8 +20,8 @@ public enum ErrorStatus implements BaseErrorCode {
     FORBIDDEN(HttpStatus.FORBIDDEN, "403", "본인만 수정할 수 있습니다."),
     NOT_FOUND(HttpStatus.NOT_FOUND, "404", "사용자를 찾을 수 없습니다."),
     CONFLICT(HttpStatus.CONFLICT, "409", "이미 사용 중인 이메일입니다."),
-    FAMILY_GROUP_MAXCOUNT_TOO_SMALL(org.springframework.http.HttpStatus.CONFLICT, "409",
-            "현재 인원 수보다 작은 정원으로 변경할 수 없습니다."),
+    FAMILY_GROUP_MAXCOUNT_TOO_SMALL(HttpStatus.CONFLICT, "409", "현재 인원 수보다 작은 정원으로 변경할 수 없습니다."),
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "400", "요청 파라미터가 유효하지 않습니다."),
     ;
 
 

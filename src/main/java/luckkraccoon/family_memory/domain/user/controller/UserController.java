@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import luckkraccoon.family_memory.domain.chapter.dto.response.UserChaptersResponse;
+import luckkraccoon.family_memory.domain.chapter.service.UserChapterQueryService;
 import luckkraccoon.family_memory.domain.user.dto.request.LoginRequest;
 import luckkraccoon.family_memory.domain.user.dto.request.UserUpdateRequest;
 import luckkraccoon.family_memory.domain.user.dto.response.*;
@@ -78,4 +80,14 @@ public class UserController {
         );
     }
 
+    private final UserChapterQueryService userChapterQueryService;
+
+    @GetMapping("/users/{userId}/chapters")
+    public ApiResponse<UserChaptersResponse> getUserChapters(
+            @PathVariable Long userId,
+            @RequestParam(name = "state", required = false, defaultValue = "PROGRESS") String state
+    ) {
+        UserChaptersResponse result = userChapterQueryService.getUserChapters(userId, state);
+        return ApiResponse.onSuccess(SuccessStatus.USERCHAPTER_GET_SUCCESS, result);
+    }
 }

@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface ChapterIndexRepository extends JpaRepository<ChapterIndex, Long> {
     List<ChapterIndex> findByChapterId(Long chapterId);
+    /** 기본 정렬: id ASC */
+    List<ChapterIndex> findByChapter_IdOrderByIdAsc(Long chapterId);
+    boolean existsByIdAndChapter_Id(Long id, Long chapterId);
 }
