@@ -15,16 +15,19 @@ public class UserConverter {
                 .build();
     }
 
-    public static void applySignupFields(User user, SignupRequest req, String encodedPassword, String imageUrl) {
-        user.setUserId(req.getUserId());
-        user.setPassword(encodedPassword);
-        user.setUserName(req.getUserName());
-        user.setNickName(req.getNickName());
-        user.setEmail(req.getEmail());
-        user.setGender(req.getGender());
-        user.setBirth(req.getBirth());
-        user.setUserImage(imageUrl); // null 가능
-        user.setFontSize(req.getFontSize());
-        user.setVoiceSpeed(req.getVoiceSpeed());
+    /** 멀티파트 전용: URL은 서비스에서 S3 업로드 후 주입 */
+    public static User toSignupEntity(SignupRequest req, String encodedPassword, String imageUrl) {
+        return User.builder()
+                .userId(req.getUserId())
+                .userPassword(encodedPassword)    // ✅ 엔티티 필드명 일치
+                .userName(req.getUserName())
+                .nickName(req.getNickName())
+                .email(req.getEmail())
+                .gender(req.getGender())
+                .birth(req.getBirth())
+                .userImage(imageUrl)              // S3 업로드 URL
+                .fontSize(req.getFontSize())
+                .voiceSpeed(req.getVoiceSpeed())
+                .build(); // familyGroup은 가입 시 null 유지(이후 참여 API에서 세팅)
     }
 }

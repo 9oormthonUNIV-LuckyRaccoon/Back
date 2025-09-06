@@ -59,7 +59,7 @@ public class User extends BaseEntity {
     @Column(name = "voice_speed")
     private Integer voiceSpeed;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "group_id", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)   // ✅ true
+    @JoinColumn(name = "group_id", nullable = true)       // ✅ true
     private FamilyGroup familyGroup;
 }

@@ -1,5 +1,6 @@
 package luckkraccoon.family_memory.domain.user.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,16 +39,14 @@ public class SignupRequest {
 
     @NotNull(message = "birth는 필수입니다.")
     @Past(message = "생년월일은 과거 날짜여야 합니다.")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birth;
 
-    /** 파일 미전송 시 URL 직접 입력에 사용(선택) */
-    private String userImage;
-
-    /** 선택값 */
+    // 선택값
     @Min(8) @Max(40)
     private Integer fontSize;
 
-    /** 선택값: 음성 속도(앱 정책에 맞게 조정) */
+    // 선택값
     @Min(0) @Max(3)
     private Integer voiceSpeed;
 }
