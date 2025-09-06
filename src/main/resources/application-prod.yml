@@ -1,33 +1,41 @@
+server:
+  port: ${SERVER_PORT:8080}
+
 spring:
   datasource:
+    url: ${DEPLOY_DB_URL}
     username: ${DEPLOY_DB_USERNAME}
     password: ${DEPLOY_DB_PASSWORD}
-    url: ${DEPLOY_DB_URL}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
-      ddl-auto: update
-    #      ddl-auto: create
+      ddl-auto: update   # 초기 배포 후에는 none/validate 로 전환 권장
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
-        show_sql: true
-        format_sql: true
-        use_sql_comments: true
+        show_sql: false
+        format_sql: false
+        use_sql_comments: false
         default_batch_fetch_size: 1000
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.springframework.jdbc.core: DEBUG
-#cloud:
-#  aws:
-#    credentials:
-#      access-key: ${AWS_ACCESS_KEY}
-#      secret-key: ${AWS_SECRET_KEY}
-#    region:
-#      static: ap-northeast-2
-#    stack:
-#      auto: false
-#    s3:
-#      bucket: snapi-s3
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    org.springframework.jdbc.core: INFO
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+s3:
+  bucket: luckyraccoon-s3
