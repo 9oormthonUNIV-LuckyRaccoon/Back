@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create   # 초기 배포 후에는 none/validate 로 전환 권장
+      ddl-auto: create   # update로 바꾸기! 초기 배포 후에는 none/validate 로 전환 권장
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
