@@ -20,6 +20,8 @@ public enum SuccessStatus implements BaseCode {
     FAMILY_GROUP_GET_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "가족 그룹 정보 조회 성공"),
     FAMILY_GROUP_MEMBERS_GET_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "구성원 목록 조회 성공"),
     FAMILY_GROUP_UPDATE_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "가족 그룹 정보가 수정되었습니다."),
+    CHAPTER_LIST_SUCCESS(org.springframework.http.HttpStatus.OK, "200", "챕터 목록 조회 성공"),
+    CHAPTER_LIST_EMPTY(org.springframework.http.HttpStatus.NO_CONTENT, "204", "조회 가능한 챕터가 없습니다."),
     ;
     private final HttpStatus httpStatus;
     private final String code;
