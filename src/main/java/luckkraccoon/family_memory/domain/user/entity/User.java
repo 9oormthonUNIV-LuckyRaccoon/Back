@@ -60,6 +60,6 @@ public class User extends BaseEntity {
     private Integer voiceSpeed;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "group_id", nullable = false)
+    @JoinColumn(name = "group_id", nullable = true)
     private FamilyGroup familyGroup;
 }
