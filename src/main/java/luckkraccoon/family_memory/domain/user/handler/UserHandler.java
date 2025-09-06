@@ -1,4 +1,5 @@
-package luckkraccoon.family_memory.domain.z.handler;
+package luckkraccoon.family_memory.domain.user.handler;
+
 
 import luckkraccoon.family_memory.global.error.code.status.BaseErrorCode;
 import luckkraccoon.family_memory.global.exception.GeneralException;
