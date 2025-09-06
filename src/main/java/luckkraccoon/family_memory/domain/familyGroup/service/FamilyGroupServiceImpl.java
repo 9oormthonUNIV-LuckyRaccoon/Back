@@ -3,6 +3,7 @@ package luckkraccoon.family_memory.domain.familyGroup.service;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupJoinRequest;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupLeaveRequest;
+import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupGetResponse;
 import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupJoinResponse;
 import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupLeaveResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -148,6 +149,13 @@ public class FamilyGroupServiceImpl implements FamilyGroupService {
                 .currentCount(group.getCurrentCount())
                 .leftAt(Instant.now().toString()) // ISO-8601 with 'Z'
                 .build();
+    }
+
+    @Override
+    public FamilyGroupGetResponse getById(Long id) {
+        FamilyGroup group = familyGroupRepository.findById(id)
+                .orElseThrow(() -> new UserHandler(ErrorStatus.NOT_FOUND)); // 404: 그룹 없음
+        return FamilyGroupConverter.toGetResponse(group);
     }
 
 

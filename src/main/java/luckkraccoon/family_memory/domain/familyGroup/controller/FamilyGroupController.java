@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupJoinRequest;
 import luckkraccoon.family_memory.domain.familyGroup.dto.request.FamilyGroupLeaveRequest;
+import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupGetResponse;
 import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupJoinResponse;
 import luckkraccoon.family_memory.domain.familyGroup.dto.response.FamilyGroupLeaveResponse;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +58,16 @@ public class FamilyGroupController {
         FamilyGroupLeaveResponse result = familyGroupService.leave(request);
         return ResponseEntity.ok(
                 ApiResponse.onSuccess(SuccessStatus.FAMILY_GROUP_LEAVE_SUCCESS, result)
+        );
+    }
+
+
+    @Operation(summary = "가족 그룹 정보 조회", description = "가족 그룹의 기본 정보를 조회합니다. (무인증)")
+    @GetMapping(value = "/family-group/{id}", produces = "application/json")
+    public ResponseEntity<ApiResponse<FamilyGroupGetResponse>> getFamilyGroup(@PathVariable("id") Long id) {
+        FamilyGroupGetResponse result = familyGroupService.getById(id);
+        return ResponseEntity.ok(
+                ApiResponse.onSuccess(SuccessStatus.FAMILY_GROUP_GET_SUCCESS, result)
         );
     }
 }
