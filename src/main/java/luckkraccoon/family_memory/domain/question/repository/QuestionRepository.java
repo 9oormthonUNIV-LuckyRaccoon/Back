@@ -7,6 +7,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface QuestionRepository extends Repository<Question, Long> {
     List<Question> findByIndexId(Long indexId);
@@ -29,4 +30,15 @@ public interface QuestionRepository extends Repository<Question, Long> {
                                  @Param("indexId")   Long indexId,
                                  @Param("kw")        String kw,
                                  Sort sort);
+
+    /** 단건 상세 조회: index 및 chapter까지 한 번에 페치 */
+    @Query("""
+           select q
+             from Question q
+             join fetch q.index i
+             join fetch i.chapter c
+            where q.id = :id
+           """)
+    Optional<Question> findDetailById(@Param("id") Long id);
+
 }

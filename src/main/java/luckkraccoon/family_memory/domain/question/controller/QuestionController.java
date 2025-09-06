@@ -3,6 +3,7 @@ package luckkraccoon.family_memory.domain.question.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import luckkraccoon.family_memory.domain.question.dto.response.QuestionDetailResponse;
 import org.springframework.web.bind.annotation.*;
 
 import luckkraccoon.family_memory.domain.question.dto.response.QuestionListResponse;
@@ -27,5 +28,13 @@ public class QuestionController {
                                                           @RequestParam(required = false, defaultValue = "id,asc") String sort) {
         QuestionListResponse result = questionQueryService.getQuestions(chapterId, indexId, q, sort);
         return ApiResponse.onSuccess(SuccessStatus.QUESTION_LIST_SUCCESS, result);
+    }
+
+    @Operation(summary = "질문 단건 조회", description = "질문 ID로 단일 질문 상세를 조회합니다.")
+    @GetMapping("/questions/{id}")
+    public ApiResponse<QuestionDetailResponse> getQuestion(@PathVariable Long id) {
+        QuestionDetailResponse result = questionQueryService.getQuestion(id);
+        return ApiResponse.onSuccess(SuccessStatus.QUESTION_GET_SUCCESS, result);
+        // QUESTION_GET_SUCCESS가 없다면: return ApiResponse.onSuccess(SuccessStatus.OK, result);
     }
 }

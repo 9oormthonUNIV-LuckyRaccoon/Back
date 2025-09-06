@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import luckkraccoon.family_memory.domain.chapter.repository.ChapterRepository;
 import luckkraccoon.family_memory.domain.chapter.repository.ChapterIndexRepository;
 import luckkraccoon.family_memory.domain.question.converter.QuestionConverter;
+import luckkraccoon.family_memory.domain.question.dto.response.QuestionDetailResponse;
 import luckkraccoon.family_memory.domain.question.dto.response.QuestionListResponse;
 import luckkraccoon.family_memory.domain.question.entity.Question;
+import luckkraccoon.family_memory.domain.question.handler.QuestionHandler;
 import luckkraccoon.family_memory.domain.question.repository.QuestionRepository;
 import luckkraccoon.family_memory.domain.chapter.handler.ChapterHandler;
 import luckkraccoon.family_memory.global.error.code.status.ErrorStatus;
@@ -64,5 +66,13 @@ public class QuestionQueryServiceImpl implements QuestionQueryService {
 
         // 5) 변환 & 반환
         return QuestionConverter.toListResponse(chapterId, indexId, list);
+    }
+
+
+    @Override
+    public QuestionDetailResponse getQuestion(Long id) {
+        Question q = questionRepository.findDetailById(id)
+                .orElseThrow(() -> new QuestionHandler(ErrorStatus.NOT_FOUND));
+        return QuestionConverter.toDetail(q);
     }
 }
